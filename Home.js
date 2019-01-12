@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   FlatList,
   TextInput,
-  Input,
+  Image,
 } from 'react-native';
 
 
@@ -31,13 +31,12 @@ export default class App extends Component {
 
   fetchRepositories(refreshing = false) {
     const newPage = refreshing ? 1 : this.page + 1;
-    const word = this.state.text;
-    fetch(`https://api.github.com/search/repositories?q=${word}&${newPage}`)
+    fetch(`https://api.github.com/search/repositories?q=${this.state.text}&${newPage}`)
       .then(response => response.json())
       .then(({ items }) => {
         this.page = newPage;
         if (refreshing) {
-          this.setState({ items, refreshing: false })
+          this.setState({ items: items , refreshing: false })
         } else {
           this.setState({ items: [...this.state.items, ...items], refreshing: false })
         }
@@ -61,8 +60,12 @@ export default class App extends Component {
         <FlatList
           data = { this.state.items }
           renderItem = {({ item }) => 
-          <TouchableOpacity onPress={() => this.navigateToDetail(item)}>
-            <Text style={{padding: 20}}>{item.name}</Text>
+          <TouchableOpacity onPress={() => this.navigateToDetail(item)} style={{ padding: 10, backgroundColor: '#ddd', borderBottomWidth: 1, borderBottomColor: '#000', }}>
+            <Text style={{padding: 5, fontSize: 20, fontWeight: 'bold', paddingBottom: 10, }}>{item.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+              <Image style={styles.ownerIcon} source={{ uri: item.owner.avatar_url }} />
+              <Text style={styles.ownerName}>{ item.owner.login }</Text>
+            </View>
           </TouchableOpacity>
          }
           // keyExtractor = {(item) => item.id }
@@ -99,5 +102,14 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#555',
     fontWeight: 'bold',
+  },
+  ownerIcon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 5,
+  },
+  ownerName: {
+    fontSize: 14,
   },
 });
